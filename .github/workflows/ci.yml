@@ -24,6 +24,12 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
+          # We don't ship a uv.lock (that's the default cache key). Hash the
+          # requirements files instead so the cache invalidates when deps change.
+          cache-dependency-glob: |
+            requirements.txt
+            requirements-dev.txt
+            requirements-eval.txt
 
       - name: Install dev dependencies
         # uv resolves the dependency graph orders of magnitude faster than pip
