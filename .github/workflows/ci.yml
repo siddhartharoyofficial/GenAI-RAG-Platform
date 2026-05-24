@@ -27,9 +27,9 @@ jobs:
           # We don't ship a uv.lock (that's the default cache key). Hash the
           # requirements files instead so the cache invalidates when deps change.
           cache-dependency-glob: |
-            requirements.txt
-            requirements-dev.txt
-            requirements-eval.txt
+            requirements/requirements.txt
+            requirements/requirements-dev.txt
+            requirements/requirements-eval.txt
 
       - name: Install dev dependencies
         # uv resolves the dependency graph orders of magnitude faster than pip
@@ -37,7 +37,7 @@ jobs:
         run: |
           uv venv .venv
           . .venv/bin/activate
-          uv pip install -r requirements-dev.txt
+          uv pip install -r requirements/requirements-dev.txt
 
       - name: Ruff
         run: |

@@ -1,7 +1,7 @@
 # Evaluation dependencies — kept separate because Ragas + datasets +
 # arize-phoenix pull in heavy ML transitive deps that conflict with the
 # minimal runtime resolver. Install only when you're running the eval suite:
-#   uv pip install -r requirements.txt -r requirements-eval.txt
+#   uv pip install -r requirements/requirements.txt -r requirements/requirements-eval.txt
 
 ragas>=0.2,<1
 datasets>=3.0,<4

@@ -24,8 +24,8 @@ help: ## Show this help
 
 .PHONY: install
 install: ## Install Python dependencies
-	pip install -r requirements.txt
-	pip install -r requirements-dev.txt
+	pip install -r requirements/requirements.txt
+	pip install -r requirements/requirements-dev.txt
 
 .PHONY: lint
 lint: ## Run linters (ruff, black --check, mypy)

@@ -1,22 +1,53 @@
-# Terraform
+# =============================================================================
+# Python runtime artifacts
+# Compilation caches and test caches stay local. They should never be committed.
+# =============================================================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# =============================================================================
+# Terraform local state
+# Auth, state, and tfvars files contain cloud credentials and resource IDs.
+# These must NEVER be pushed to a public repo.
+# =============================================================================
+.terraform/
 **/.terraform/*
+.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfvars
+!*.tfvars.example
 !terraform.tfvars.example
-.terraform.lock.hcl
+tfplan
+*.tfplan
 crash.log
 crash.*.log
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
-tfplan
-*.tfplan
 
-# Python
-__pycache__/
-*.py[cod]
+# =============================================================================
+# Environment secrets
+# Any file holding credentials, API keys, or environment-specific config.
+# Blocking these eliminates the data-exfiltration risk of a careless commit.
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+credentials.json
+service-account*.json
+gcp-key*.json
+
+# =============================================================================
+# Build / dist / venv
+# =============================================================================
 *$py.class
 *.so
 .Python
@@ -35,7 +66,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.pytest_cache/
 .coverage
 htmlcov/
 .tox/
@@ -48,35 +78,26 @@ venv/
 env/
 ENV/
 
-# IDE
+# =============================================================================
+# IDE / OS
+# =============================================================================
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Secrets
-*.pem
-*.key
-*.crt
-.env
-.env.local
-.env.*.local
-credentials.json
-service-account*.json
-gcp-key*.json
-
-# Docker
+# =============================================================================
+# Docker / Kubernetes
+# =============================================================================
 .docker/
-
-# Logs
-*.log
-logs/
-
-# Kubernetes
 kubeconfig
 *.kubeconfig
+
+# =============================================================================
+# Logs
+# =============================================================================
+*.log
+logs/

@@ -1,9 +1,9 @@
 # ----------------------------------------------------------------------------
 # Runtime dependencies for the API service.
-# Kept lean on purpose — heavy eval libs (ragas, datasets, arize-phoenix) live
-# in requirements-eval.txt so the runtime image and the CI lint job don't have
-# to resolve them. That split is the difference between a 30s `pip install` and
-# a `resolution-too-deep` failure.
+# Kept lean on purpose. Heavy eval libs (ragas, datasets, arize-phoenix) live
+# in requirements-eval.txt (same folder) so the runtime image and the CI lint
+# job don't have to resolve them. That split is the difference between a
+# 30-second `uv pip install` and a `resolution-too-deep` failure.
 # ----------------------------------------------------------------------------
 
 # Web framework

@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements/requirements.txt ./requirements.txt
 RUN pip wheel --wheel-dir=/wheels -r requirements.txt
 
 ###############################################################################
@@ -41,7 +41,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY --from=builder /wheels /wheels
-COPY requirements.txt .
+COPY requirements/requirements.txt ./requirements.txt
 RUN pip install --no-index --find-links=/wheels -r requirements.txt && rm -rf /wheels
 
 COPY src/ ./src/

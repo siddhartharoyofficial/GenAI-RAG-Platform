@@ -7,7 +7,7 @@ Thanks for considering a contribution. A few ground rules to keep the project he
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements/requirements-dev.txt
 pre-commit install
 ```
 
