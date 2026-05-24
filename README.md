@@ -259,8 +259,4 @@ PRs welcome. Run `make lint test` before opening one.
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
-
----
-
-*This repository accompanies the Hack2Skill Challenge 2 submission. The companion LinkedIn write-up is linked in the submission form.*
+MIT — see [`LICENSE`](LICENSE)
