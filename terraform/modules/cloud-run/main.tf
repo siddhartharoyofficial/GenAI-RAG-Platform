@@ -55,7 +55,7 @@ resource "google_cloud_run_v2_service" "service" {
       }
       startup_probe {
         http_get { path = "/healthz" }
-        period_seconds = 5
+        period_seconds    = 5
         failure_threshold = 6
       }
     }

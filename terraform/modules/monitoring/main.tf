@@ -70,7 +70,7 @@ resource "google_monitoring_alert_policy" "low_cache_hit_rate" {
 }
 
 resource "google_monitoring_dashboard" "overview" {
-  project        = var.project_id
+  project = var.project_id
   dashboard_json = jsonencode({
     displayName = "${var.name_prefix} — GenAI RAG overview"
     gridLayout = {
@@ -81,7 +81,7 @@ resource "google_monitoring_dashboard" "overview" {
             dataSets = [{
               timeSeriesQuery = {
                 timeSeriesFilter = {
-                  filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\""
+                  filter      = "metric.type=\"loadbalancing.googleapis.com/https/request_count\""
                   aggregation = { alignmentPeriod = "60s", perSeriesAligner = "ALIGN_RATE" }
                 }
               }
@@ -94,7 +94,7 @@ resource "google_monitoring_dashboard" "overview" {
             dataSets = [{
               timeSeriesQuery = {
                 timeSeriesFilter = {
-                  filter = "metric.type=\"loadbalancing.googleapis.com/https/backend_latencies\""
+                  filter      = "metric.type=\"loadbalancing.googleapis.com/https/backend_latencies\""
                   aggregation = { alignmentPeriod = "60s", perSeriesAligner = "ALIGN_PERCENTILE_95" }
                 }
               }

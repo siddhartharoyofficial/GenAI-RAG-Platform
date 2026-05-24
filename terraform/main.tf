@@ -84,13 +84,13 @@ module "secrets" {
 module "memorystore_redis" {
   source = "./modules/memorystore-redis"
 
-  project_id      = var.project_id
-  region          = var.region
-  name_prefix     = local.name_prefix
-  network_id      = module.network.network_id
-  tier            = var.redis_tier
-  memory_size_gb  = var.redis_memory_gb
-  labels          = local.common_labels
+  project_id     = var.project_id
+  region         = var.region
+  name_prefix    = local.name_prefix
+  network_id     = module.network.network_id
+  tier           = var.redis_tier
+  memory_size_gb = var.redis_memory_gb
+  labels         = local.common_labels
 }
 
 module "alloydb" {
@@ -112,11 +112,11 @@ module "alloydb" {
 module "vertex_ai" {
   source = "./modules/vertex-ai"
 
-  project_id          = var.project_id
-  region              = var.region
-  name_prefix         = local.name_prefix
-  reranker_model_uri  = var.reranker_model_uri
-  labels              = local.common_labels
+  project_id         = var.project_id
+  region             = var.region
+  name_prefix        = local.name_prefix
+  reranker_model_uri = var.reranker_model_uri
+  labels             = local.common_labels
 }
 
 ###############################################################################
@@ -154,12 +154,12 @@ module "cloud_run_router" {
 module "api_gateway" {
   source = "./modules/api-gateway"
 
-  project_id   = var.project_id
-  region       = var.region
-  name_prefix  = local.name_prefix
-  backend_url  = module.cloud_run_router.service_url
-  domain_name  = var.domain_name
-  labels       = local.common_labels
+  project_id  = var.project_id
+  region      = var.region
+  name_prefix = local.name_prefix
+  backend_url = module.cloud_run_router.service_url
+  domain_name = var.domain_name
+  labels      = local.common_labels
 }
 
 ###############################################################################
@@ -169,8 +169,8 @@ module "api_gateway" {
 module "monitoring" {
   source = "./modules/monitoring"
 
-  project_id  = var.project_id
-  name_prefix = local.name_prefix
+  project_id         = var.project_id
+  name_prefix        = local.name_prefix
   notification_email = "platform-oncall@example.com"
-  labels      = local.common_labels
+  labels             = local.common_labels
 }

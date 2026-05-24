@@ -25,9 +25,10 @@ resource "google_secret_manager_secret_version" "alloydb_password" {
 }
 
 resource "google_alloydb_cluster" "primary" {
-  cluster_id   = "${var.name_prefix}-alloydb"
-  location     = var.region
-  project      = var.project_id
+  cluster_id = "${var.name_prefix}-alloydb"
+  location   = var.region
+  project    = var.project_id
+
   network_config {
     network = var.network_id
   }

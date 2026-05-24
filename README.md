@@ -26,61 +26,85 @@ The pragmatic inversion: the LLM call is the most expensive resource in the syst
 ## Architecture
 
 ```mermaid
-flowchart LR
-    %% ===== 1. Request enters =====
-    A([User sends a question]) --> B["Step 1 — Front Door<br/>Cloud Load Balancing<br/>+ Cloud Armor WAF<br/>(Rate limit, Auth, TLS)"]
+flowchart TD
+    A([User sends a question]) --> B
 
-    %% ===== 2. Check the cache first =====
-    B --> C{{"Step 2 — Check Cache<br/>Memorystore for Redis<br/>Has anyone asked this before?<br/>(cosine similarity ≥ 0.92)"}}
-    C -->|Yes, similar Q found| Z(["Return cached answer<br/>in under 10 ms"])
+    subgraph S1["1 . Front Door"]
+        B["Cloud Load Balancing<br/>+ Cloud Armor WAF"]
+    end
 
-    %% ===== 3. Classify the question =====
-    C -->|No match — keep going| D["Step 3 — Classify Question<br/>Vertex AI · Gemini 2.5 Flash<br/>(runs on Cloud Run)"]
-    D -->|Simple fact| E1[Lightweight path]
-    D -->|Multi-step reasoning| E2[Full RAG path]
-    D -->|Needs a tool| E3[Agentic path]
+    subgraph S2["2 . Cache Check"]
+        C{{"Memorystore for Redis<br/>Has anyone asked this before?<br/>cosine ≥ 0.92"}}
+    end
 
-    %% ===== 4. Hybrid retrieval =====
-    E1 & E2 & E3 --> F["Step 4 — Find Relevant Docs<br/>Search orchestrator on GKE Autopilot"]
-    F --> F1["Semantic search<br/>AlloyDB + pgvector<br/>(HNSW index, tenant filter)"]
-    F --> F2["Keyword search<br/>AlloyDB Postgres FTS<br/>(BM25 / tsvector)"]
-    F1 --> G["Step 5 — Merge Results<br/>Reciprocal Rank Fusion<br/>(combines both lists)"]
+    subgraph S3["3 . Classify the Question"]
+        D["Vertex AI · Gemini 2.5 Flash<br/>running on Cloud Run"]
+    end
+
+    subgraph S4["4 . Find Relevant Docs"]
+        F1["AlloyDB + pgvector<br/>Semantic search"]
+        F2["AlloyDB Postgres FTS<br/>Keyword search"]
+        G["Merge with<br/>Reciprocal Rank Fusion"]
+    end
+
+    subgraph S5["5 . Rerank and Expand"]
+        H["Vertex AI Endpoint<br/>Cohere Rerank 3<br/>Top 50 to Top 5"]
+        I["AlloyDB<br/>Pull parent chunks<br/>128 to 512 tokens"]
+    end
+
+    subgraph S6["6 . Pick the Right Model"]
+        J{Router}
+        K1["Vertex AI<br/>Gemini 2.5 Flash<br/>fast and cheap"]
+        K2["Vertex AI Model Garden<br/>Claude 3.5 Sonnet or GPT-4o<br/>hard reasoning"]
+    end
+
+    subgraph S7["7 . Stream the Answer"]
+        L["GKE Autopilot<br/>Streams tokens via SSE<br/>first word under 200 ms"]
+    end
+
+    subgraph S8["8 . Save for Next Time"]
+        M["Cloud Tasks<br/>Async write-back"]
+        N["Memorystore + AlloyDB<br/>Cache answer · Update memory"]
+    end
+
+    Z([Answer to user])
+
+    B --> C
+    C -- hit --> Z
+    C -- miss --> D
+    D --> F1
+    D --> F2
+    F1 --> G
     F2 --> G
-
-    %% ===== 5. Rerank + expand context =====
-    G --> H["Step 6 — Rerank<br/>Vertex AI Endpoint<br/>Cohere Rerank 3 (or BGE)<br/>Top 50 → Top 5"]
-    H --> I["Step 7 — Expand Context<br/>AlloyDB pulls parent chunks<br/>128 tokens → 512 tokens"]
-
-    %% ===== 6. Pick the right LLM =====
-    I --> J{Step 8 — Pick the right model}
-    J -->|Fast, cheap answer| K1["Vertex AI<br/>Gemini 2.5 Flash"]
-    J -->|Hard reasoning| K2["Vertex AI Model Garden<br/>Claude 3.5 Sonnet or GPT-4o"]
-    K1 --> L["Step 9 — Stream the answer<br/>GKE service streams tokens (SSE)<br/>User sees first word under 200 ms"]
+    G --> H
+    H --> I
+    I --> J
+    J -- simple --> K1
+    J -- complex --> K2
+    K1 --> L
     K2 --> L
     L --> Z
+    L --> M
+    M --> N
 
-    %% ===== 7. Save it for next time =====
-    L --> M["Step 10 — Save for next time<br/>Cloud Tasks fires async write"]
-    M --> N["Memorystore + AlloyDB<br/>Cache the answer · Update session memory"]
+    O["Always watching<br/>Cloud Trace · Cloud Logging<br/>Managed Prometheus · Arize Phoenix"]
+    O -.-> B
+    O -.-> D
+    O -.-> H
+    O -.-> J
 
-    %% ===== Observability (watches the whole pipeline) =====
-    O["Always watching<br/>Cloud Trace · Managed Prometheus<br/>Cloud Logging · Arize Phoenix<br/>(Latency, accuracy, drift)"]
-    O -.watches.-> B
-    O -.watches.-> D
-    O -.watches.-> H
-    O -.watches.-> J
+    classDef gcp fill:#1A73E8,stroke:#8AB4F8,stroke-width:2px,color:#FFFFFF;
+    classDef cache fill:#D93025,stroke:#F28B82,stroke-width:2px,color:#FFFFFF;
+    classDef llm fill:#137333,stroke:#81C995,stroke-width:2px,color:#FFFFFF;
+    classDef obs fill:#B06000,stroke:#FDD663,stroke-width:2px,color:#FFFFFF;
+    classDef edge fill:#3C4043,stroke:#9AA0A6,stroke-width:2px,color:#FFFFFF;
+    classDef user fill:#202124,stroke:#9AA0A6,stroke-width:2px,color:#FFFFFF;
 
-    %% ===== Styling =====
-    classDef gcp fill:#E8F0FE,stroke:#4285F4,stroke-width:1.5px,color:#202124;
-    classDef cache fill:#FCE8E6,stroke:#D93025,stroke-width:1.5px,color:#202124;
-    classDef llm fill:#E6F4EA,stroke:#137333,stroke-width:1.5px,color:#202124;
-    classDef obs fill:#FEF7E0,stroke:#F9AB00,stroke-width:1.5px,color:#202124;
-    classDef edge fill:#F1F3F4,stroke:#5F6368,stroke-width:1.5px,color:#202124;
-
-    class B,F,L,M,Z edge;
+    class A,Z user;
+    class B,L,M edge;
     class C,N cache;
-    class D,H,K1,K2 llm;
-    class F1,F2,I gcp;
+    class D,H,K1,K2,J llm;
+    class F1,F2,G,I gcp;
     class O obs;
 ```
 

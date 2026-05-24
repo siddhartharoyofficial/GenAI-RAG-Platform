@@ -5,7 +5,7 @@
 
 locals {
   secrets = {
-    cohere_api_key   = "Cohere API key for reranker fallback"
+    cohere_api_key    = "Cohere API key for reranker fallback"
     anthropic_api_key = "Anthropic API key for Claude (only if not using Vertex Model Garden)"
     openai_api_key    = "OpenAI API key for GPT-4o (optional fallback)"
     langsmith_api_key = "LangSmith API key for tracing"

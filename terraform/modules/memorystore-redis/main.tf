@@ -10,8 +10,8 @@ resource "google_redis_instance" "cache" {
   tier           = var.tier
   memory_size_gb = var.memory_size_gb
 
-  redis_version    = "REDIS_7_2"
-  display_name     = "GenAI RAG semantic cache and session memory"
+  redis_version     = "REDIS_7_2"
+  display_name      = "GenAI RAG semantic cache and session memory"
   reserved_ip_range = null
 
   authorized_network      = var.network_id
@@ -21,7 +21,7 @@ resource "google_redis_instance" "cache" {
 
   redis_configs = {
     # Eviction strategy tuned for cache-first workloads.
-    "maxmemory-policy"  = "allkeys-lru"
+    "maxmemory-policy"       = "allkeys-lru"
     "notify-keyspace-events" = "Ex"
   }
 

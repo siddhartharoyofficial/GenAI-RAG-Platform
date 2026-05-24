@@ -11,7 +11,7 @@ resource "google_vertex_ai_endpoint" "reranker" {
   project      = var.project_id
   labels       = var.labels
 
-  network = null  # Public access; restrict via service account auth.
+  network = null # Public access; restrict via service account auth.
 }
 
 # Note: Deploying a specific model to the endpoint is done out of band — either
@@ -41,8 +41,8 @@ resource "google_artifact_registry_repository" "containers" {
     id     = "delete-old-untagged"
     action = "DELETE"
     condition {
-      tag_state    = "UNTAGGED"
-      older_than   = "604800s" # 7 days
+      tag_state  = "UNTAGGED"
+      older_than = "604800s" # 7 days
     }
   }
 }

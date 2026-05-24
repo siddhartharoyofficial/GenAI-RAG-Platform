@@ -1,0 +1,13 @@
+# Evaluation dependencies — kept separate because Ragas + datasets +
+# arize-phoenix pull in heavy ML transitive deps that conflict with the
+# minimal runtime resolver. Install only when you're running the eval suite:
+#   uv pip install -r requirements.txt -r requirements-eval.txt
+
+ragas>=0.2,<1
+datasets>=3.0,<4
+arize-phoenix>=5.0,<7
+
+# These conflict resolutions are typical when mixing ML libs:
+#   - pydantic v2 is required by ragas
+#   - pyarrow needs to match datasets' pin window
+# Let uv resolve rather than pinning here.
