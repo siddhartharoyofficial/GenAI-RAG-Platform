@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
 
-A production-grade, multi-region **Hybrid Semantic-Cache and Routed Multi-Agent RAG** platform deployed entirely on **Google Cloud** with **Terraform** as the source of truth. Built as a reference implementation for the *Hack2Skill Challenge 2: Designing a Gen AI System for Accuracy and Speed at Scale*.
+A production-grade, multi-region **Hybrid Semantic-Cache and Routed Multi-Agent RAG** platform deployed entirely on **Google Cloud** with **Terraform** as the source of truth. Built as a reference implementation for the *Hack2Skill Challenge: Designing a Gen AI System for Accuracy and Speed at Scale*.
 
 ---
 
