@@ -19,7 +19,9 @@ async def embed_text(text: str) -> np.ndarray:
     client = aiplatform.gapic.PredictionServiceAsyncClient(
         client_options={"api_endpoint": f"{cfg.region}-aiplatform.googleapis.com"}
     )
-    endpoint = f"projects/{cfg.project_id}/locations/{cfg.region}/publishers/google/models/{cfg.embedding_model}"
+    endpoint = (
+        f"projects/{cfg.project_id}/locations/{cfg.region}/publishers/google/models/{cfg.embedding_model}"
+    )
     instances = [predict.instance.TextEmbeddingPredictionInstance(content=text).to_value()]
     response = await client.predict(endpoint=endpoint, instances=instances)
     values = response.predictions[0]["embeddings"]["values"]

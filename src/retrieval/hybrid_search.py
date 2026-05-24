@@ -76,8 +76,7 @@ class HybridRetriever:
             await cur.execute(sql, (embedding.tolist(), tenant_id, tenant_id, embedding.tolist(), k))
             rows = await cur.fetchall()
         return [
-            RetrievalHit(chunk_id=r[0], text=r[1], parent_text=r[2], score=r[4], metadata=r[3])
-            for r in rows
+            RetrievalHit(chunk_id=r[0], text=r[1], parent_text=r[2], score=r[4], metadata=r[3]) for r in rows
         ]
 
     async def _sparse_search(self, query: str, tenant_id: str | None, k: int) -> list[RetrievalHit]:
@@ -95,8 +94,7 @@ class HybridRetriever:
             await cur.execute(sql, (query, query, tenant_id, tenant_id, k))
             rows = await cur.fetchall()
         return [
-            RetrievalHit(chunk_id=r[0], text=r[1], parent_text=r[2], score=r[4], metadata=r[3])
-            for r in rows
+            RetrievalHit(chunk_id=r[0], text=r[1], parent_text=r[2], score=r[4], metadata=r[3]) for r in rows
         ]
 
     @classmethod

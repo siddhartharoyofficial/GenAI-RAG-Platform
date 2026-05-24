@@ -33,17 +33,21 @@ class CrossEncoderReranker:
         aiplatform.init(project=cfg.project_id, location=cfg.region)
         self._endpoint = aiplatform.Endpoint(cfg.reranker_endpoint_id)
 
-    async def rerank(self, query: str, hits: list[RetrievalHit], top_k: int | None = None) -> list[RerankedHit]:
+    async def rerank(
+        self, query: str, hits: list[RetrievalHit], top_k: int | None = None
+    ) -> list[RerankedHit]:
         top_k = top_k or self._cfg.rerank_top_k
         if not hits:
             return []
 
         # Vertex endpoint expects {"query": ..., "documents": [...]} for Cohere Rerank.
-        instances = [{
-            "query": query,
-            "documents": [h.text for h in hits],
-            "top_n": top_k,
-        }]
+        instances = [
+            {
+                "query": query,
+                "documents": [h.text for h in hits],
+                "top_n": top_k,
+            }
+        ]
         response = await self._endpoint.predict_async(instances=instances)
 
         # Cohere returns sorted indices + relevance scores.

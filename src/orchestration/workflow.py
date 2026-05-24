@@ -8,8 +8,9 @@ trace; we paid that lesson once.
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -62,10 +63,14 @@ class RAGWorkflow:
 
         g.set_entry_point("retrieve")
         g.add_edge("retrieve", "rerank")
-        g.add_conditional_edges("rerank", self._route_synthesis, {
-            "fast": "synthesize_fast",
-            "quality": "synthesize_quality",
-        })
+        g.add_conditional_edges(
+            "rerank",
+            self._route_synthesis,
+            {
+                "fast": "synthesize_fast",
+                "quality": "synthesize_quality",
+            },
+        )
         g.add_edge("synthesize_fast", END)
         g.add_edge("synthesize_quality", END)
         return g.compile()
@@ -101,7 +106,9 @@ class RAGWorkflow:
 
     # --- Public API ----------------------------------------------------------
 
-    async def run(self, query: str, intent: Intent, session_id: str | None, tenant_id: str | None) -> WorkflowResult:
+    async def run(
+        self, query: str, intent: Intent, session_id: str | None, tenant_id: str | None
+    ) -> WorkflowResult:
         init = GraphState(query=query, intent=intent, session_id=session_id, tenant_id=tenant_id)
         final = await self._graph.ainvoke(init)
         return WorkflowResult(answer=final["answer"], citations=final["citations"], trace_id=init.trace_id)

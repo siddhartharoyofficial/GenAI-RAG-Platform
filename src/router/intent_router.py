@@ -77,6 +77,7 @@ class IntentRouter:
     @staticmethod
     def _loose_parse(text: str) -> dict:
         import json
+
         # Strip fenced blocks if the model wrapped JSON in them.
         cleaned = text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
         return json.loads(cleaned)

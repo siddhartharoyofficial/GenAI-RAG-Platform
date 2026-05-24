@@ -21,9 +21,9 @@ CONTEXT_PRECISION_MIN = 0.80
 
 @pytest.mark.skipif(not GOLDEN.exists(), reason="golden.jsonl not present")
 def test_ragas_metrics_above_thresholds():
+    from datasets import Dataset
     from ragas import evaluate
     from ragas.metrics import answer_relevancy, context_precision, faithfulness
-    from datasets import Dataset
 
     records = [json.loads(line) for line in GOLDEN.read_text().splitlines() if line.strip()]
     ds = Dataset.from_list(records)

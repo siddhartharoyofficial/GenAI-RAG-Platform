@@ -13,8 +13,8 @@ Heavy lifting lives in the modules under src/*; this file is intentionally thin.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 import structlog
 from fastapi import FastAPI, HTTPException, Request
@@ -31,6 +31,7 @@ log = structlog.get_logger()
 
 
 # --- Lifecycle ----------------------------------------------------------------
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -59,6 +60,7 @@ app = FastAPI(
 
 # --- Schemas ------------------------------------------------------------------
 
+
 class QueryRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=4096)
     session_id: str | None = None
@@ -74,6 +76,7 @@ class QueryResponse(BaseModel):
 
 
 # --- Routes -------------------------------------------------------------------
+
 
 @app.get("/healthz")
 async def healthz() -> dict[str, str]:
@@ -100,18 +103,24 @@ async def query(req: QueryRequest, request: Request) -> QueryResponse:
     # 1. Cache probe.
     cached = await cache.lookup(req.query, tenant_id=req.tenant_id)
     if cached is not None:
-        return QueryResponse(answer=cached.answer, source="cache", citations=cached.citations, trace_id=cached.trace_id)
+        return QueryResponse(
+            answer=cached.answer, source="cache", citations=cached.citations, trace_id=cached.trace_id
+        )
 
     # 2. Intent classification.
     intent = await router.classify(req.query)
 
     # 3. Dispatch.
-    result = await workflow.run(query=req.query, intent=intent, session_id=req.session_id, tenant_id=req.tenant_id)
+    result = await workflow.run(
+        query=req.query, intent=intent, session_id=req.session_id, tenant_id=req.tenant_id
+    )
 
     # 4. Async cache write-back — don't block the response on it.
     asyncio.create_task(cache.write(req.query, result, tenant_id=req.tenant_id))
 
-    return QueryResponse(answer=result.answer, source="rag", citations=result.citations, trace_id=result.trace_id)
+    return QueryResponse(
+        answer=result.answer, source="rag", citations=result.citations, trace_id=result.trace_id
+    )
 
 
 @app.post("/v1/query/stream")

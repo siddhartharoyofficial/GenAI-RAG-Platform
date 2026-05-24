@@ -47,7 +47,7 @@ class SemanticCache:
         self._ttl = ttl
 
     @classmethod
-    async def connect(cls, cfg: Settings) -> "SemanticCache":
+    async def connect(cls, cfg: Settings) -> SemanticCache:
         client = redis.Redis(
             host=cfg.redis_host,
             port=cfg.redis_port,
@@ -83,10 +83,17 @@ class SemanticCache:
                 "FT.SEARCH",
                 self.INDEX_NAME,
                 f"(@tenant_id:{{{tenant_id or 'global'}}})=>[KNN 1 @vec $vec AS score]",
-                "PARAMS", "2", "vec", embedding.tobytes(),
-                "SORTBY", "score",
-                "DIALECT", "2",
-                "LIMIT", "0", "1",
+                "PARAMS",
+                "2",
+                "vec",
+                embedding.tobytes(),
+                "SORTBY",
+                "score",
+                "DIALECT",
+                "2",
+                "LIMIT",
+                "0",
+                "1",
             )
         except redis.ResponseError as exc:
             log.warning("cache.lookup_failed", error=str(exc))
@@ -107,16 +114,21 @@ class SemanticCache:
         try:
             embedding = await embed_text(query)
             key = self._key(query, tenant_id)
-            payload = json.dumps({
-                "answer": result.answer,
-                "citations": result.citations,
-                "trace_id": result.trace_id,
-            })
-            await self._client.hset(key, mapping={
-                "vec": embedding.tobytes(),
-                "payload": payload,
-                "tenant_id": tenant_id or "global",
-            })
+            payload = json.dumps(
+                {
+                    "answer": result.answer,
+                    "citations": result.citations,
+                    "trace_id": result.trace_id,
+                }
+            )
+            await self._client.hset(
+                key,
+                mapping={
+                    "vec": embedding.tobytes(),
+                    "payload": payload,
+                    "tenant_id": tenant_id or "global",
+                },
+            )
             await self._client.expire(key, self._ttl)
         except Exception as exc:  # noqa: BLE001
             log.warning("cache.write_failed", error=str(exc))
