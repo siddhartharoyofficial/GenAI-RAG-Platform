@@ -1,0 +1,56 @@
+# Local dev compose stack — emulates Redis + Postgres locally so you can iterate
+# without provisioning GCP. Replace pgvector image with AlloyDB-compatible
+# Postgres + pgvector extension.
+
+services:
+  redis:
+    image: redis/redis-stack:7.4.0-v0
+    ports:
+      - "6379:6379"
+      - "8001:8001" # RedisInsight
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: ragdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ../scripts/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      GCP_PROJECT_ID: local-dev
+      GCP_REGION: us-central1
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      ALLOYDB_HOST: postgres
+      ALLOYDB_PORT: 5432
+      ALLOYDB_DATABASE: ragdb
+      ALLOYDB_USER: postgres
+      ALLOYDB_PASSWORD_SECRET: localdev
+      RERANKER_ENDPOINT_ID: stub
+    ports:
+      - "8080:8080"
+
+volumes:
+  pg-data:

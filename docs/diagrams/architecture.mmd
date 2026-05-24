@@ -1,0 +1,29 @@
+flowchart TD
+    A[User Request] --> B[API Gateway<br/>Envoy / Kong<br/>Rate limit, Auth, Pooling]
+    B --> C{Semantic Cache<br/>Redis Vector Sim<br/>threshold 0.92}
+    C -->|Cache Hit| Z[Stream Response<br/>TTFT under 200ms]
+    C -->|Cache Miss| D[Intent Router<br/>Gemini 2.5 Flash<br/>Classify query type]
+    D -->|Simple Lookup| E1[Lightweight Path]
+    D -->|Complex Reasoning| E2[Full RAG Path]
+    D -->|Agentic Tool-Use| E3[Multi-Agent Path]
+    E1 --> F[Hybrid Search Layer]
+    E2 --> F
+    E3 --> F
+    F --> F1[Dense Vector Search<br/>Qdrant / pgvector<br/>HNSW + Metadata Filter]
+    F --> F2[Sparse BM25 Search<br/>Keyword exact match]
+    F1 --> G[Reciprocal Rank Fusion]
+    F2 --> G
+    G --> H[Cross-Encoder Re-ranker<br/>Cohere Rerank / BGE<br/>Top 50 to Top 5]
+    H --> I[Parent Chunk Expansion<br/>128-token match to<br/>512-token context]
+    I --> J{LLM Routing}
+    J -->|Simple Synthesis| K1[Gemini 2.5 Flash]
+    J -->|Complex Reasoning| K2[Claude 3.5 Sonnet<br/>or GPT-4o]
+    K1 --> L[Token Streaming Response]
+    K2 --> L
+    L --> M[Async Cache Write-back<br/>+ Memory Update]
+    M --> N[Postgres + Redis<br/>Session Memory]
+    L --> Z
+    O[Arize Phoenix / LangSmith<br/>TTFT, Ragas, Drift] -.observes.-> B
+    O -.observes.-> D
+    O -.observes.-> H
+    O -.observes.-> J

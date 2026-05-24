@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+namePrefix: prod-
+
+patches:
+  - target:
+      kind: Deployment
+      name: api
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 5
+  - target:
+      kind: HorizontalPodAutoscaler
+      name: api
+    patch: |-
+      - op: replace
+        path: /spec/minReplicas
+        value: 5
+      - op: replace
+        path: /spec/maxReplicas
+        value: 50
+
+configMapGenerator:
+  - name: api-config
+    behavior: merge
+    literals:
+      - GCP_PROJECT_ID=REPLACE_ME_PROD_PROJECT

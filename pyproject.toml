@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "genai-rag-platform"
+version = "0.1.0"
+description = "Hybrid semantic-cache and routed multi-agent RAG on Google Cloud."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Siddhartha Roy" }]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 110
+target-version = ["py311"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]

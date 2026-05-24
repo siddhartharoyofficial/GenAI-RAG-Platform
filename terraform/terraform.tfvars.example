@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars (gitignored) and fill in.
+
+project_id  = "my-gcp-project-id"
+region      = "us-central1"
+environment = "dev"
+
+# Optional: override defaults if you want to deviate from the reference sizing.
+# redis_tier         = "STANDARD_HA"
+# redis_memory_gb    = 5
+# alloydb_cpu_count  = 4
+
+# Set after you push your first image build.
+# api_image = "us-central1-docker.pkg.dev/my-gcp-project-id/genai-rag/api:abc1234"
+
+# Set if you have a domain. Leave empty for IP-only access.
+# domain_name = "rag.example.com"
